@@ -11,30 +11,24 @@ def get_access_token():
         "query": "{ auth { id username } }"
     }, headers={
         "Content-Type": "application/json",
+        "origin": "https://velog.io",
+        "referer": "https://velog.io/",
         "cookie": f"refresh_token={REFRESH_TOKEN}"
     })
     set_cookie = res.headers.get("set-cookie", "")
     data = res.json()
-    print("auth 응답:", data)   # 어느 계정인지 확인
-
+    print("auth 응답:", data)
     for part in set_cookie.split(";"):
         part = part.strip()
         if part.startswith("access_token="):
             return part[len("access_token="):]
     return None
 
-
 TOKEN = get_access_token()
 if not TOKEN:
     print("토큰 발급 실패")
     exit(1)
 print("토큰 발급 성공")
-
-HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Content-Type": "application/json",
-    "cookie": f"access_token={TOKEN}"
-}
 
 WRITE_POST = """
 mutation WritePost(
@@ -99,9 +93,10 @@ def post_to_velog(data):
         "origin": "https://velog.io",
         "referer": "https://velog.io/",
     })
+    print(f"상태코드: {res.status_code}, 응답: {res.text[:300]}")
+    if not res.text:
+        return {"data": {"writePost": None}}
     return res.json()
-
-
 
 for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
     data = parse_md(filepath)
@@ -113,4 +108,5 @@ for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
     elif result.get("data", {}).get("writePost"):
         print(f"완료: {data['title']}")
     else:
-        print(f"인증 실패 또는 null 응답: {data['title']} - {result}")
+        print(f"null 응답: {data['title']}")
+    break  # 첫 번째 글만 테스트
