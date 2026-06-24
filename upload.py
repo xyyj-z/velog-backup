@@ -2,6 +2,7 @@ import requests
 import os
 import glob
 import re
+import time
 
 REFRESH_TOKEN = os.environ["VELOG_REFRESH_TOKEN"]
 API = "https://v2.velog.io/graphql"
@@ -85,7 +86,7 @@ def post_to_velog(data):
             "body": data["body"],
             "tags": data["tags"],
             "is_markdown": True,
-            "is_temp": True,
+            "is_temp": False,
             "is_private": False,
             "url_slug": slugify(data["title"]),
             "meta": {},
@@ -96,7 +97,7 @@ def post_to_velog(data):
         "origin": "https://velog.io",
         "referer": "https://velog.io/",
     })
-    if not res.text:
+    if not res.text.strip():
         return {"data": {"writePost": None}}
     return res.json()
 
@@ -111,3 +112,4 @@ for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
         print(f"완료: {data['title']}")
     else:
         print(f"null 응답: {data['title']}")
+    time.sleep(1)
