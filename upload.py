@@ -111,4 +111,3 @@ for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
         print(f"완료: {data['title']}")
     else:
         print(f"null 응답: {data['title']}")
-    break  # 첫 번째 글만 테스트
