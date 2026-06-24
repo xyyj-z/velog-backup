@@ -39,6 +39,7 @@ mutation WritePost(
   $is_temp: Boolean!
   $is_private: Boolean!
   $url_slug: String!
+  $meta: JSON
 ) {
   writePost(
     title: $title
@@ -48,6 +49,7 @@ mutation WritePost(
     is_temp: $is_temp
     is_private: $is_private
     url_slug: $url_slug
+    meta: $meta
   ) {
     id
     title
@@ -86,6 +88,7 @@ def post_to_velog(data):
             "is_temp": True,
             "is_private": False,
             "url_slug": slugify(data["title"]),
+            "meta": {},
         }
     }, headers={
         "Content-Type": "application/json",
@@ -93,7 +96,6 @@ def post_to_velog(data):
         "origin": "https://velog.io",
         "referer": "https://velog.io/",
     })
-    print(f"상태코드: {res.status_code}, 응답: {res.text[:300]}")
     if not res.text:
         return {"data": {"writePost": None}}
     return res.json()
