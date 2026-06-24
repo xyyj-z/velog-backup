@@ -8,11 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - run: pip install requests
+
+      - name: Install dependencies
+        run: pip install requests
+
       - name: Upload to Velog
         env:
-          VELOG_TOKEN: ${{ secrets.VELOG_TOKEN }}
+          VELOG_REFRESH_TOKEN: ${{ secrets.VELOG_REFRESH_TOKEN }}
         run: python upload.py
