@@ -5,11 +5,31 @@ import re
 
 TOKEN = os.environ["VELOG_TOKEN"]
 API = "https://v2.velog.io/graphql"
-HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+HEADERS = {
+    "Authorization": f"Bearer {TOKEN}",
+    "Content-Type": "application/json",
+    "cookie": f"access_token={TOKEN}"
+}
 
 WRITE_POST = """
-mutation WritePost($input: WritePostInput!) {
-  writePost(input: $input) {
+mutation WritePost(
+  $title: String!
+  $body: String!
+  $tags: [String]!
+  $is_markdown: Boolean!
+  $is_temp: Boolean!
+  $is_private: Boolean!
+  $url_slug: String!
+) {
+  writePost(
+    title: $title
+    body: $body
+    tags: $tags
+    is_markdown: $is_markdown
+    is_temp: $is_temp
+    is_private: $is_private
+    url_slug: $url_slug
+  ) {
     id
     title
     url_slug
@@ -39,14 +59,15 @@ def slugify(title):
 def post_to_velog(data):
     res = requests.post(API, json={
         "query": WRITE_POST,
-        "variables": {"input": {
+        "variables": {
             "title": data["title"],
             "body": data["body"],
             "tags": data["tags"],
             "is_markdown": True,
             "is_temp": False,
+            "is_private": False,
             "url_slug": slugify(data["title"]),
-        }}
+        }
     }, headers=HEADERS)
     return res.json()
 
@@ -57,5 +78,7 @@ for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
     result = post_to_velog(data)
     if "errors" in result:
         print(f"실패: {data['title']} - {result['errors']}")
-    else:
+    elif result.get("data", {}).get("writePost"):
         print(f"완료: {data['title']}")
+    else:
+        print(f"인증 실패 또는 null 응답: {data['title']} - {result}")
