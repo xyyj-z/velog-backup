@@ -95,9 +95,12 @@ def post_to_velog(data):
         }
     }, headers={
         "Content-Type": "application/json",
-        "cookie": f"refresh_token={REFRESH_TOKEN}; access_token={TOKEN}"
+        "cookie": f"refresh_token={REFRESH_TOKEN}; access_token={TOKEN}",
+        "origin": "https://velog.io",
+        "referer": "https://velog.io/",
     })
     return res.json()
+
 
 
 for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
