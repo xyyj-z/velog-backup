@@ -8,17 +8,18 @@ API = "https://v2.velog.io/graphql"
 
 def get_access_token():
     res = requests.post(API, json={
-        "query": "mutation { refreshToken { access_token } }"
+        "query": "{ restoreToken { accessToken } }"
     }, headers={
         "Content-Type": "application/json",
         "cookie": f"refresh_token={REFRESH_TOKEN}"
     })
     data = res.json()
-    token = data.get("data", {}).get("refreshToken", {}).get("access_token")
+    token = data.get("data", {}).get("restoreToken", {}).get("accessToken")
     if not token:
         print("토큰 갱신 실패:", data)
         exit(1)
     return token
+
 
 TOKEN = get_access_token()
 print("토큰 발급 성공")
