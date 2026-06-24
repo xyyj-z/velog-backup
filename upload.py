@@ -8,20 +8,27 @@ API = "https://v2.velog.io/graphql"
 
 def get_access_token():
     res = requests.post(API, json={
-        "query": "{ restoreToken { accessToken } }"
+        "query": "{ auth { id username } }"
     }, headers={
         "Content-Type": "application/json",
         "cookie": f"refresh_token={REFRESH_TOKEN}"
     })
+    # 서버가 Set-Cookie로 새 access_token 발급
+    set_cookie = res.headers.get("set-cookie", "")
+    print("Set-Cookie:", set_cookie)
+    for part in set_cookie.split(";"):
+        part = part.strip()
+        if part.startswith("access_token="):
+            return part[len("access_token="):]
+    # Set-Cookie에 없으면 auth 응답에서 확인
     data = res.json()
-    token = data.get("data", {}).get("restoreToken", {}).get("accessToken")
-    if not token:
-        print("토큰 갱신 실패:", data)
-        exit(1)
-    return token
-
+    print("auth 응답:", data)
+    return None
 
 TOKEN = get_access_token()
+if not TOKEN:
+    print("토큰 발급 실패")
+    exit(1)
 print("토큰 발급 성공")
 
 HEADERS = {
