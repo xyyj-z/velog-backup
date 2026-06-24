@@ -93,8 +93,12 @@ def post_to_velog(data):
             "is_private": False,
             "url_slug": slugify(data["title"]),
         }
-    }, headers=HEADERS)
+    }, headers={
+        "Content-Type": "application/json",
+        "cookie": f"refresh_token={REFRESH_TOKEN}; access_token={TOKEN}"
+    })
     return res.json()
+
 
 for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
     data = parse_md(filepath)
