@@ -13,17 +13,16 @@ def get_access_token():
         "Content-Type": "application/json",
         "cookie": f"refresh_token={REFRESH_TOKEN}"
     })
-    # 서버가 Set-Cookie로 새 access_token 발급
     set_cookie = res.headers.get("set-cookie", "")
-    print("Set-Cookie:", set_cookie)
+    data = res.json()
+    print("auth 응답:", data)   # 어느 계정인지 확인
+
     for part in set_cookie.split(";"):
         part = part.strip()
         if part.startswith("access_token="):
             return part[len("access_token="):]
-    # Set-Cookie에 없으면 auth 응답에서 확인
-    data = res.json()
-    print("auth 응답:", data)
     return None
+
 
 TOKEN = get_access_token()
 if not TOKEN:
@@ -90,7 +89,7 @@ def post_to_velog(data):
             "body": data["body"],
             "tags": data["tags"],
             "is_markdown": True,
-            "is_temp": False,
+            "is_temp": True,
             "is_private": False,
             "url_slug": slugify(data["title"]),
         }
