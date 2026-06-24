@@ -99,7 +99,12 @@ def post_to_velog(data):
     })
     if not res.text.strip():
         return {"data": {"writePost": None}}
-    return res.json()
+    try:
+        return res.json()
+    except Exception:
+        print(f"파싱 실패 - 상태코드: {res.status_code}, 응답: {repr(res.text[:200])}")
+        return {"data": {"writePost": None}}
+
 
 for filepath in sorted(glob.glob("posts/**/*.md", recursive=True)):
     data = parse_md(filepath)
