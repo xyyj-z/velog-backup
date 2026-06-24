@@ -3,13 +3,26 @@ import os
 import glob
 import re
 
-print("CWD:", os.getcwd())
-print("폴더 목록:", os.listdir('.'))
-files = glob.glob("posts/**/*.md", recursive=True)
-print(f"찾은 파일 수: {len(files)}")
-
-TOKEN = os.environ["VELOG_TOKEN"]
+REFRESH_TOKEN = os.environ["VELOG_REFRESH_TOKEN"]
 API = "https://v2.velog.io/graphql"
+
+def get_access_token():
+    res = requests.post(API, json={
+        "query": "mutation { refreshToken { access_token } }"
+    }, headers={
+        "Content-Type": "application/json",
+        "cookie": f"refresh_token={REFRESH_TOKEN}"
+    })
+    data = res.json()
+    token = data.get("data", {}).get("refreshToken", {}).get("access_token")
+    if not token:
+        print("토큰 갱신 실패:", data)
+        exit(1)
+    return token
+
+TOKEN = get_access_token()
+print("토큰 발급 성공")
+
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
     "Content-Type": "application/json",
