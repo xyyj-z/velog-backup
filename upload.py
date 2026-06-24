@@ -3,6 +3,11 @@ import os
 import glob
 import re
 
+print("CWD:", os.getcwd())
+print("폴더 목록:", os.listdir('.'))
+files = glob.glob("posts/**/*.md", recursive=True)
+print(f"찾은 파일 수: {len(files)}")
+
 TOKEN = os.environ["VELOG_TOKEN"]
 API = "https://v2.velog.io/graphql"
 HEADERS = {
